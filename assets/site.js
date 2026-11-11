@@ -34,7 +34,7 @@ setTimeout(function(){rs.forEach(function(e){e.classList.add('on')})},2200);
 var gal=$$('.masonry img');
 if(gal.length){var lb=document.createElement('div');lb.className='lb';lb.hidden=true;lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');lb.setAttribute('aria-label','Photo viewer');
   lb.innerHTML='<img alt=""><button class="x" aria-label="Close">×</button><button class="lp" aria-label="Previous photo">‹</button><button class="ln" aria-label="Next photo">›</button>';document.body.appendChild(lb);var li=0;
-  var open=function(i){li=(i+gal.length)%gal.length;var s=gal[li];lb.querySelector('img').src=s.currentSrc||s.src;lb.querySelector('img').alt=s.alt;lb.hidden=false;document.body.style.overflow='hidden'};
+  var open=function(i){li=(i+gal.length)%gal.length;var s=gal[li];lb.querySelector('img').src=s.dataset.full||s.currentSrc||s.src;lb.querySelector('img').alt=s.alt;lb.hidden=false;document.body.style.overflow='hidden'};
   var close=function(){lb.hidden=true;document.body.style.overflow=''};
   gal.forEach(function(g,i){g.parentNode.addEventListener('click',function(){open(i)})});
   lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('x'))close();else if(e.target.classList.contains('lp'))open(li-1);else if(e.target.classList.contains('ln'))open(li+1)});

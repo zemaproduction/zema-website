@@ -156,7 +156,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .gidx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px)}
 .gcard{display:flex;flex-direction:column;gap:16px;text-align:center}
 .gcard img{aspect-ratio:4/5;object-fit:cover;width:100%;border:1px solid var(--hair);transition:filter .6s}
-.gcard:nth-child(2){margin-top:70px}
+.gcard:nth-child(3n+2){margin-top:70px}
 .gcard:hover img{filter:brightness(1.08)}
 .gcard h2{font:300 32px/1.1 var(--display);margin:6px 0 0}
 .gcard .italic{font-size:15px;color:var(--mut)}
