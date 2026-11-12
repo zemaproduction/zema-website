@@ -427,3 +427,10 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 
 .hero-h{font-size:clamp(30px,3.6vw,46px)}.hero-copy{gap:14px}.hero-copy .hero-cta{margin-top:6px}
 @media(max-width:760px){.hero-copy .hero-cta{display:flex;justify-content:flex-start}.hero-copy .hero-cta .pill{width:auto;flex:0 0 auto;min-width:0}}
+
+/* portfolio covers: shown whole, never cropped */
+.gcard img,.gcard:nth-child(n) img{aspect-ratio:auto;height:auto;object-fit:contain}
+@media(max-width:900px){.gidx{grid-template-columns:1fr 1fr}.gcard:nth-child(3){grid-column:span 2;max-width:calc(50% - var(--gap)/2);justify-self:center}}
+@media(max-width:560px){.gcard:nth-child(3){grid-column:span 1;max-width:none}}
+@media(max-width:900px) and (min-width:561px){.gcard:nth-child(4),.gcard:nth-child(5){grid-column:span 1}}
+@media(max-width:560px){.gidx{grid-template-columns:1fr}.gcard,.gcard:nth-child(n){grid-column:span 1;max-width:none;justify-self:stretch}}
