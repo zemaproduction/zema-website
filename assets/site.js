@@ -44,7 +44,7 @@ if(gal.length){var lb=document.createElement('div');lb.className='lb';lb.hidden=
 var wedEl=$('#wed');
 if(wedEl){rpc('packages_get').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;
   var hide=!!d.hide;/* package prices stay in the planner's builder; the public cards don't show them */
-  var BUILD=PLANNER+'?p=wedding',wed=Array.isArray(d.wed)?d.wed:[];
+  var BUILD=PLANNER+'?p=wedding&np=1',wed=Array.isArray(d.wed)?d.wed:[];
   /* features every package shares, shown once below the cards */
   var common=wed.length>1?wed[0].f.filter(function(x){return wed.every(function(k){return (k.f||[]).indexOf(x)>-1})}):[];
   if(wed.length){wedEl.innerHTML=wed.map(function(k){var img=safeImg(k.img),f=(k.f||[]).filter(function(x){return common.indexOf(x)<0}),top=f.slice(0,5),rest=f.slice(5);
@@ -62,7 +62,7 @@ if(wedEl){rpc('packages_get').then(function(r){return r.ok?r.json():null}).then(
     ex.innerHTML=d.addons.map(function(a){var img=safeImg(a.img),lines=String(a.d||'').split('\n').map(function(x){return x.trim()}).filter(Boolean);
       var incl=wed.filter(function(k){return (k.inc||[]).indexOf(a.id)>-1||(a.id==='prewedding'&&k.pre)}).map(function(k){return k.n});
       var body=lines.length>1?'<p>'+esc(lines[0].replace(/^[^:]{0,40}:\s*/,''))+'</p><ul>'+lines.slice(1).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'<p>'+esc(lines[0]||'')+'</p>';
-      return '<div class="extra">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="xrow"><h4>'+esc(a.n)+'</h4>'+(hide||!a.p?'':'<div class="price">'+esc(a.p)+'</div>')+'</div>'+(incl.length?'<div class="incl">Included with '+esc(incl.join(' & '))+'</div>':'')+body+'</div>'}).join('')}
+      return '<div class="extra">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="xrow"><h4>'+esc(a.n)+'</h4>'+'</div>'+(incl.length?'<div class="incl">Included with '+esc(incl.join(' & '))+'</div>':'')+body+'</div>'}).join('')}
   var tm=$('#terms');if(tm&&Array.isArray(d.terms)&&d.terms.length)tm.innerHTML=d.terms.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
 }).catch(function(){})}
 
