@@ -44,12 +44,25 @@ if(gal.length){var lb=document.createElement('div');lb.className='lb';lb.hidden=
 var wedEl=$('#wed');
 if(wedEl){rpc('packages_get').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;
   var hide=!!d.hide,price=function(p){return hide||!p?'':'<div class="price">'+esc(p)+'</div>'};
-  if(Array.isArray(d.wed)&&d.wed.length){wedEl.innerHTML=d.wed.map(function(k){var img=safeImg(k.img);return '<article class="pkg'+(k.star?' star':'')+'">'+(img?'<img class="cover" src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="body">'+(k.tag?'<div class="tag">'+esc(k.tag)+'</div>':'')+'<h3>'+esc(k.n)+'</h3>'+price(k.p)+'<p>'+esc(k.d||'')+'</p><ul>'+(k.f||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><a class="pill" href="'+PLANNER+'?p=wedding" target="_blank" rel="noopener">Book '+esc(k.n)+'</a></div></article>'}).join('')}
+  var BUILD=PLANNER+'?p=wedding',wed=Array.isArray(d.wed)?d.wed:[];
+  /* features every collection shares, shown once below the cards */
+  var common=wed.length>1?wed[0].f.filter(function(x){return wed.every(function(k){return (k.f||[]).indexOf(x)>-1})}):[];
+  if(wed.length){wedEl.innerHTML=wed.map(function(k){var img=safeImg(k.img),f=(k.f||[]).filter(function(x){return common.indexOf(x)<0}),top=f.slice(0,5),rest=f.slice(5);
+    return '<article class="pkg'+(k.star?' star':'')+'">'+(img?'<img class="cover" src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="body">'+(k.tag?'<div class="tag">'+esc(k.tag)+'</div>':'')+'<h3>'+esc(k.n)+'</h3>'+price(k.p)+'<p>'+esc(k.d||'')+'</p>'
+      +(top.length?'<ul>'+top.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')
+      +(rest.length?'<details class="more"><summary>Everything included</summary><ul>'+rest.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></details>':'')
+      +'<a class="pill'+(k.star?' solid':'')+'" href="'+BUILD+'" target="_blank" rel="noopener">Build your '+esc(k.n)+' collection</a></div></article>'}).join('')}
+  if(common.length&&$('#common')){$('#commonList').innerHTML=common.map(function(x){return '<li>'+esc(x)+'</li>'}).join('');$('#common').hidden=false}
   if(d.wedNote)$('#wedNote').textContent=d.wedNote;
   var ev=$('#ev');if(ev&&Array.isArray(d.ev)){var rows=d.ev.map(function(k){return '<div class="row"><b>'+esc(k.n)+'</b><span>'+esc(k.d||'')+'</span>'+(hide||!k.p?'<i></i>':'<i>'+esc(k.p)+'</i>')+'</div>'});
     if(d.hr&&d.hr.p){rows.push('<div class="row"><b>By the hour</b><span>'+esc(d.hr.d||'')+(d.hr.pp?' Photography only '+esc(d.hr.pp)+'.':'')+(d.hr.pv?' Video only '+esc(d.hr.pv)+'.':'')+'</span>'+(hide?'<i></i>':'<i>'+esc(d.hr.p)+'</i>')+'</div>')}ev.innerHTML=rows.join('')}
-  if(d.evIntro)$('#evIntro').textContent=d.evIntro;if(d.evNote)$('#evNote').textContent=d.evNote;
-  var ex=$('#extras');if(ex&&Array.isArray(d.addons)&&d.addons.length){if(d.adIntro)$('#adIntro').textContent=d.adIntro;ex.innerHTML=d.addons.map(function(a){var img=safeImg(a.img);var desc=String(a.d||'').split('\n')[0];return '<div class="extra">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<h4>'+esc(a.n)+'</h4>'+(hide||!a.p?'':'<div class="price">'+esc(a.p)+'</div>')+'<p>'+esc(desc)+'</p></div>'}).join('')}
+  if(d.evNote)$('#evNote').textContent=d.evNote;
+  /* extras, marking the ones a collection already includes */
+  var ex=$('#extras');if(ex&&Array.isArray(d.addons)&&d.addons.length){if(d.adIntro)$('#adIntro').textContent=d.adIntro;
+    ex.innerHTML=d.addons.map(function(a){var img=safeImg(a.img),lines=String(a.d||'').split('\n').map(function(x){return x.trim()}).filter(Boolean);
+      var incl=wed.filter(function(k){return (k.inc||[]).indexOf(a.id)>-1||(a.id==='prewedding'&&k.pre)}).map(function(k){return k.n});
+      var body=lines.length>1?'<p>'+esc(lines[0].replace(/^[^:]{0,40}:\s*/,''))+'</p><ul>'+lines.slice(1).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'<p>'+esc(lines[0]||'')+'</p>';
+      return '<div class="extra">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="xrow"><h4>'+esc(a.n)+'</h4>'+(hide||!a.p?'':'<div class="price">'+esc(a.p)+'</div>')+'</div>'+(incl.length?'<div class="incl">Included with '+esc(incl.join(' & '))+'</div>':'')+body+'</div>'}).join('')}
   var tm=$('#terms');if(tm&&Array.isArray(d.terms)&&d.terms.length)tm.innerHTML=d.terms.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
 }).catch(function(){})}
 
