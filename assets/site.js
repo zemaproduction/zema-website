@@ -66,10 +66,21 @@ if(wedEl){rpc('packages_get').then(function(r){return r.ok?r.json():null}).then(
   var tm=$('#terms');if(tm&&Array.isArray(d.terms)&&d.terms.length)tm.innerHTML=d.terms.map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
 }).catch(function(){})}
 
-/* testimonials: approved reviews from the planner */
+/* testimonials: genuine reviews only — from reviews.json (added by hand) and approved planner reviews */
 var qEl=$('#quotes');
-if(qEl){rpc('reviews_public').then(function(r){return r.ok?r.json():null}).then(function(d){var list=Array.isArray(d)?d.filter(function(x){return x&&x.body}):[];if(!list.length)return;
-  $('#qEmpty').hidden=true;qEl.hidden=false;qEl.innerHTML=list.map(function(x){var n=Math.max(0,Math.min(5,+x.rating||0));return '<figure class="q">'+(n?'<div class="stars" aria-label="'+n+' out of 5">'+'★'.repeat(n)+'</div>':'')+'<blockquote>“'+esc(x.body)+'”</blockquote><cite>'+esc(x.name||'')+'</cite></figure>'}).join('')}).catch(function(){})}
+if(qEl){var base=($('link[rel=icon]').getAttribute('href')||'').replace(/img\/favicon\.png$/,'');
+  var fromFile=fetch(base+'reviews.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).catch(function(){return []});
+  var fromPlanner=rpc('reviews_public').then(function(r){return r.ok?r.json():[]}).catch(function(){return []});
+  Promise.all([fromFile,fromPlanner]).then(function(res){
+    var list=[].concat(Array.isArray(res[0])?res[0]:[],Array.isArray(res[1])?res[1]:[]).filter(function(x){return x&&(x.body||x.quote)});
+    if(!list.length)return;
+    var photo=function(x){var u=String(x.photo||'').trim();return /^(https:\/\/|img\/)/.test(u)?(u.indexOf('img/')===0?base+u:u):''};
+    var stars=function(x){var n=Math.max(0,Math.min(5,+x.rating||0));return n?'<div class="stars" aria-label="'+n+' out of 5">'+'★'.repeat(n)+'</div>':''};
+    var who=function(x){return '<cite>'+esc(x.name||'')+(x.event?'<span>'+esc(x.event)+'</span>':'')+'</cite>'};
+    var fi=list.findIndex(function(x){return x.featured&&photo(x)});if(fi<0)fi=list.findIndex(function(x){return photo(x)});
+    if(fi>-1){var f=list.splice(fi,1)[0];$('#qFeat').innerHTML='<figure class="qfeat rise on"><img src="'+esc(photo(f))+'" alt="'+esc(f.name||'')+'" loading="lazy"><div>'+stars(f)+(f.quote?'<p class="qq">“'+esc(f.quote)+'”</p>':'')+'<blockquote>'+esc(f.body||'')+'</blockquote>'+who(f)+'</div></figure>'}
+    $('#qEmpty').hidden=true;qEl.hidden=!list.length;
+    qEl.innerHTML=list.map(function(x){var ph=photo(x);return '<figure class="q">'+(ph?'<img src="'+esc(ph)+'" alt="'+esc(x.name||'')+'" loading="lazy">':'')+stars(x)+(x.quote?'<p class="qq">“'+esc(x.quote)+'”</p>':'')+'<blockquote>'+(x.quote?'':'“')+esc(x.body||'')+(x.quote?'':'”')+'</blockquote>'+who(x)+'</figure>'}).join('')}).catch(function(){})}
 
 /* contact form: goes straight into the planner's Enquiries */
 var fm=$('#enq');
