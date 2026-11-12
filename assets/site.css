@@ -447,3 +447,9 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 .gcard:hover .open{opacity:1;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.8)}
 .gcard:hover .open::after{width:22px}
 @media(max-width:560px){.gcard .open{left:12px;bottom:12px}}
+
+/* About: story subheadings */
+.split .txt .story-h{font:300 var(--fs-h3)/1.2 var(--serif);margin-top:var(--gap)}
+.split .txt .story-q{font-size:var(--fs-accent)}
+.split .txt.left p:not(.italic){max-width:60ch}
+@media(min-width:961px){.split.story .ph{align-items:flex-start}.split.story .ph img{position:sticky;top:140px}}
