@@ -437,3 +437,13 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 
 .mark{display:flex;justify-content:center;padding-left:0}.mark img{height:40px;width:auto;display:block}
 @media(max-width:760px){.mark img{height:32px}}
+
+/* portfolio covers: quiet "View gallery" overlay */
+.gcard .im{position:relative}
+.gcard .im::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,0) 38%);opacity:.85;transition:opacity .6s var(--ease);pointer-events:none}
+.gcard .open{position:absolute;z-index:1;left:16px;bottom:16px;display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border:1px solid rgba(255,255,255,.45);border-radius:var(--pill);background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font:400 10px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:.85;transform:translateY(0);transition:opacity .6s var(--ease),background .6s var(--ease),border-color .6s}
+.gcard .open::after{content:"";width:14px;height:1px;background:currentColor;transition:width .6s var(--ease)}
+.gcard:hover .im::after{opacity:1}
+.gcard:hover .open{opacity:1;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.8)}
+.gcard:hover .open::after{width:22px}
+@media(max-width:560px){.gcard .open{left:12px;bottom:12px}}
