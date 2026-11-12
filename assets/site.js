@@ -9,6 +9,56 @@ var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){r
 function rpc(fn,body){return fetch(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})})}
 var safeImg=function(u){u=String(u||'').trim();return /^https:\/\//i.test(u)?u:''};
 
+/* visitor counts for the planner (Menu → Website visitors).
+   No cookies and nothing saved on the visitor's device: only the page, how they found the site,
+   rough location, device type and taps on WhatsApp / Instagram / enquiry are counted. */
+var track=function(){};
+(function(){try{
+  var qs=new URLSearchParams(location.search);
+  /* zemaproduction.com/?zema_me=1 stops counting your own visits on that browser; ?zema_me=0 counts them again */
+  if(qs.has('zema_me')){var on=qs.get('zema_me')!=='0';try{on?localStorage.setItem('zemaMe','1'):localStorage.removeItem('zemaMe')}catch(_){}
+    var n=document.createElement('div');n.textContent=on?'Your visits on this browser are no longer counted.':'Your visits on this browser are counted again.';
+    n.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:999;background:#111;color:#f3ede2;padding:12px 18px;border-radius:10px;font:14px Lato,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:90vw;text-align:center';
+    document.body.appendChild(n);setTimeout(function(){n.remove()},4000)}
+  var me=false;try{me=localStorage.getItem('zemaMe')==='1'}catch(_){}
+  var ua=navigator.userAgent||'';
+  if(me||navigator.webdriver||navigator.globalPrivacyControl||navigator.doNotTrack==='1'||/bot|crawl|spider|headless|lighthouse/i.test(ua))return;
+  if(!/(^|\.)zemaproduction\.com$/i.test(location.hostname))return;
+  var device=/iPad|Tablet/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)?'Tablet':/Mobi|iPhone|Android/i.test(ua)?'Phone':'Desktop';
+  var browser=/Instagram/i.test(ua)?'Instagram app':/FBAN|FBAV|FB_IAB/i.test(ua)?'Facebook app':/TikTok|musical_ly|BytedanceWebview/i.test(ua)?'TikTok app':/SnapChat/i.test(ua)?'Snapchat app':/Edg\//.test(ua)?'Edge':/SamsungBrowser/.test(ua)?'Samsung':/Firefox|FxiOS/.test(ua)?'Firefox':/Chrome|CriOS/.test(ua)?'Chrome':/Safari/.test(ua)?'Safari':'Other';
+  var os=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)?'iOS':/Android/.test(ua)?'Android':/Mac OS X/.test(ua)?'Mac':/Windows/.test(ua)?'Windows':/Linux|CrOS/.test(ua)?'Linux':'Other';
+  /* how they found the site */
+  var tag=(qs.get('utm_source')||qs.get('s')||'').trim(),rh='';
+  try{rh=document.referrer?new URL(document.referrer).hostname.replace(/^www\./,''):''}catch(_){}
+  var src;
+  if(tag)src=tag.charAt(0).toUpperCase()+tag.slice(1).toLowerCase();
+  else if(rh&&rh===location.hostname.replace(/^www\./,''))src='Internal';
+  else if(/instagram\./.test(rh)||browser==='Instagram app')src='Instagram';
+  else if(/facebook\.|fb\.com|fb\.me/.test(rh)||browser==='Facebook app')src='Facebook';
+  else if(/tiktok\./.test(rh)||browser==='TikTok app')src='TikTok';
+  else if(/whatsapp|wa\.me/.test(rh))src='WhatsApp';
+  else if(/(^|\.)google\./.test(rh))src='Google';
+  else if(/bing\.|duckduckgo|yahoo\.|ecosia/.test(rh))src='Other search';
+  else if(/youtube\.|youtu\.be/.test(rh))src='YouTube';
+  else if(/pinterest\./.test(rh))src='Pinterest';
+  else if(/planner\.zemaproduction|zemaproduction\.github\.io/.test(rh))src='Zema Planner';
+  else if(rh)src=rh;
+  else src='Direct';
+  if(src==='Whatsapp')src='WhatsApp';
+  var path=(location.pathname.replace(/index\.html$/,'')||'/'),title=(document.title||'').split(' · ')[0];
+  if(/not found/i.test(document.title))path='404 '+location.pathname;
+  /* rough location (city level); if the lookup is slow or blocked the visit still counts */
+  var geo=new Promise(function(ok){var done=false,t=setTimeout(function(){done=true;ok({})},2500);
+    fetch('https://get.geojs.io/v1/ip/geo.json').then(function(r){return r.json()}).then(function(g){if(!done){clearTimeout(t);ok(g||{})}}).catch(function(){if(!done){clearTimeout(t);ok({})}})});
+  track=function(kind){geo.then(function(g){try{fetch(SB+'/rest/v1/rpc/site_track',{method:'POST',keepalive:true,headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({p:{kind:kind||'view',path:path,title:title,source:src,ref:src==='Internal'?'':rh,country:g.country_code||'',city:g.city||'',device:device,browser:browser,os:os,lang:(navigator.language||'').slice(0,12)}})}).catch(function(){})}catch(_){}})};
+  track('view');
+  /* taps that lead to a booking */
+  document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';
+    var k=/wa\.me|whatsapp/i.test(h)?'whatsapp':/instagram\.com/i.test(h)?'instagram':/planner\.zemaproduction\.com/i.test(h)?'builder':/^tel:/i.test(h)?'call':/^mailto:/i.test(h)?'email':'';
+    if(k)track(k)},true);
+}catch(_){}})();
+
 /* header: transparent over the hero, solid once scrolled */
 var hd=$('.hd'),overHero=!!$('.hero');
 function onScroll(){if(hd)hd.classList.toggle('solid',!overHero||scrollY>60)}
@@ -87,6 +137,7 @@ var fm=$('#enq');
 if(fm){var d=$('#q-date');if(d)d.min=new Date().toISOString().slice(0,10);
   var qs=new URLSearchParams(location.search),pre=qs.get('type'),pkg=(qs.get('package')||'').slice(0,60);if(pre&&$('#q-type'))$('#q-type').value=pre;
   if(pkg&&$('#q-pre')){$('#q-pre').textContent='You’re enquiring about the '+pkg+' package.';$('#q-pre').hidden=false}
+  var started=false;fm.addEventListener('input',function(){if(!started){started=true;track('enquiry_start')}});
   fm.addEventListener('submit',function(e){e.preventDefault();var v=function(id){return ($('#'+id).value||'').trim()},msg=$('#q-msg-out');
     $$('.err',fm).forEach(function(x){x.classList.remove('err')});msg.className='msg';
     var bad=function(id,t){$('#'+id).classList.add('err');$('#'+id).focus();msg.textContent=t;msg.className='msg bad'};
@@ -96,7 +147,7 @@ if(fm){var d=$('#q-date');if(d)d.min=new Date().toISOString().slice(0,10);
     var heard=v('q-heard'),p={name:v('q-name'),phone:v('q-phone'),event_type:v('q-type'),event_date:v('q-date'),message:['Sent from the website (zemaproduction.com)',heard?'Heard about us: '+heard:'',v('q-email')?'Email: '+v('q-email'):'',v('q-venue')?'Venue / location: '+v('q-venue'):'',pkg?'Package: '+pkg:'',v('q-text')].filter(Boolean).join('\n\n')};
     var wa='https://wa.me/447449727801?text='+encodeURIComponent(['Enquiry for Zema Production','Name: '+p.name,'Phone: '+p.phone,p.event_type&&('Event: '+p.event_type),p.event_date&&('Date: '+p.event_date),pkg&&('Package: '+pkg),v('q-text')].filter(Boolean).join('\n'));
     var btn=fm.querySelector('button[type=submit]');btn.disabled=true;msg.textContent='Sending…';
-    rpc('enquiry_submit',{p:p}).then(function(r){if(!r.ok)throw 0;
+    rpc('enquiry_submit',{p:p}).then(function(r){if(!r.ok)throw 0;track('enquiry_sent');
       $('#enqWrap').innerHTML='<div class="sent"><div class="eyebrow">Thank you</div><h2 class="display">Your enquiry is with us</h2><p class="lead">We’ll get back to you about your date as soon as we can. If you’d like a faster reply, send the same details on WhatsApp.</p><a class="pill" href="'+esc(wa)+'" target="_blank" rel="noopener">Send on WhatsApp</a></div>';
     }).catch(function(){btn.disabled=false;msg.className='msg bad';msg.innerHTML='We couldn’t send the form just now. Please <a href="'+esc(wa)+'" target="_blank" rel="noopener" style="text-decoration:underline">send your enquiry on WhatsApp</a> instead.'})})}
 
