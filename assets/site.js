@@ -43,21 +43,21 @@ if(gal.length){var lb=document.createElement('div');lb.className='lb';lb.hidden=
 /* services: live packages from the planner */
 var wedEl=$('#wed');
 if(wedEl){rpc('packages_get').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;
-  var hide=!!d.hide,price=function(p){return hide||!p?'':'<div class="price">'+esc(p)+'</div>'};
+  var hide=!!d.hide;/* package prices stay in the planner's builder; the public cards don't show them */
   var BUILD=PLANNER+'?p=wedding',wed=Array.isArray(d.wed)?d.wed:[];
-  /* features every collection shares, shown once below the cards */
+  /* features every package shares, shown once below the cards */
   var common=wed.length>1?wed[0].f.filter(function(x){return wed.every(function(k){return (k.f||[]).indexOf(x)>-1})}):[];
   if(wed.length){wedEl.innerHTML=wed.map(function(k){var img=safeImg(k.img),f=(k.f||[]).filter(function(x){return common.indexOf(x)<0}),top=f.slice(0,5),rest=f.slice(5);
-    return '<article class="pkg'+(k.star?' star':'')+'">'+(img?'<img class="cover" src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="body">'+(k.tag?'<div class="tag">'+esc(k.tag)+'</div>':'')+'<h3>'+esc(k.n)+'</h3>'+price(k.p)+'<p>'+esc(k.d||'')+'</p>'
+    return '<article class="pkg'+(k.star?' star':'')+'">'+(img?'<img class="cover" src="'+esc(img)+'" alt="" loading="lazy" decoding="async">':'')+'<div class="body">'+(k.tag?'<div class="tag">'+esc(String(k.tag).replace(/collection/g,'package').replace(/Collection/g,'Package'))+'</div>':'')+'<h3>'+esc(k.n)+'</h3><p>'+esc(k.d||'')+'</p>'
       +(top.length?'<ul>'+top.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')
-      +(rest.length?'<details class="more"><summary>Everything included</summary><ul>'+rest.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></details>':'')
-      +'<a class="pill'+(k.star?' solid':'')+'" href="'+BUILD+'" target="_blank" rel="noopener">Build your '+esc(k.n)+' collection</a></div></article>'}).join('')}
+      +(rest.length?'<details class="more"><summary>Explore package</summary><ul>'+rest.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></details>':'')
+      +'<div class="acts"><a class="pill'+(k.star?' solid':'')+'" href="../contact/?type=Wedding&amp;package='+encodeURIComponent(k.n)+'">Enquire about this package</a><a class="tl" href="'+BUILD+'" target="_blank" rel="noopener">Build your '+esc(k.n)+' package</a></div></div></article>'}).join('')}
   if(common.length&&$('#common')){$('#commonList').innerHTML=common.map(function(x){return '<li>'+esc(x)+'</li>'}).join('');$('#common').hidden=false}
   if(d.wedNote)$('#wedNote').textContent=d.wedNote;
-  var ev=$('#ev');if(ev&&Array.isArray(d.ev)){var rows=d.ev.map(function(k){return '<div class="row"><b>'+esc(k.n)+'</b><span>'+esc(k.d||'')+'</span>'+(hide||!k.p?'<i></i>':'<i>'+esc(k.p)+'</i>')+'</div>'});
-    if(d.hr&&d.hr.p){rows.push('<div class="row"><b>By the hour</b><span>'+esc(d.hr.d||'')+(d.hr.pp?' Photography only '+esc(d.hr.pp)+'.':'')+(d.hr.pv?' Video only '+esc(d.hr.pv)+'.':'')+'</span>'+(hide?'<i></i>':'<i>'+esc(d.hr.p)+'</i>')+'</div>')}ev.innerHTML=rows.join('')}
+  var ev=$('#ev');if(ev&&Array.isArray(d.ev)){var rows=d.ev.map(function(k){return '<div class="row"><b>'+esc(k.n)+'</b><span>'+esc(k.d||'')+'</span><a class="tl" href="../contact/?package='+encodeURIComponent(k.n)+'">Enquire</a></div>'});
+    if(d.hr&&d.hr.p){rows.push('<div class="row"><b>By the hour</b><span>'+esc(d.hr.d||'')+((d.hr.pp||d.hr.pv)?' Photography only or video only also available.':'')+'</span><a class="tl" href="../contact/?package='+encodeURIComponent('By the hour')+'">Enquire</a></div>')}ev.innerHTML=rows.join('')}
   if(d.evNote)$('#evNote').textContent=d.evNote;
-  /* extras, marking the ones a collection already includes */
+  /* extras, marking the ones a package already includes */
   var ex=$('#extras');if(ex&&Array.isArray(d.addons)&&d.addons.length){if(d.adIntro)$('#adIntro').textContent=d.adIntro;
     ex.innerHTML=d.addons.map(function(a){var img=safeImg(a.img),lines=String(a.d||'').split('\n').map(function(x){return x.trim()}).filter(Boolean);
       var incl=wed.filter(function(k){return (k.inc||[]).indexOf(a.id)>-1||(a.id==='prewedding'&&k.pre)}).map(function(k){return k.n});
@@ -85,15 +85,16 @@ if(qEl){var base=($('link[rel=icon]').getAttribute('href')||'').replace(/img\/fa
 /* contact form: goes straight into the planner's Enquiries */
 var fm=$('#enq');
 if(fm){var d=$('#q-date');if(d)d.min=new Date().toISOString().slice(0,10);
-  var pre=new URLSearchParams(location.search).get('type');if(pre&&$('#q-type'))$('#q-type').value=pre;
+  var qs=new URLSearchParams(location.search),pre=qs.get('type'),pkg=(qs.get('package')||'').slice(0,60);if(pre&&$('#q-type'))$('#q-type').value=pre;
+  if(pkg&&$('#q-pre')){$('#q-pre').textContent='You’re enquiring about the '+pkg+' package.';$('#q-pre').hidden=false}
   fm.addEventListener('submit',function(e){e.preventDefault();var v=function(id){return ($('#'+id).value||'').trim()},msg=$('#q-msg-out');
     $$('.err',fm).forEach(function(x){x.classList.remove('err')});msg.className='msg';
     var bad=function(id,t){$('#'+id).classList.add('err');$('#'+id).focus();msg.textContent=t;msg.className='msg bad'};
     if(!v('q-name'))return bad('q-name','Please add your name.');
     if(v('q-phone').replace(/\D/g,'').length<7)return bad('q-phone','Please add a phone or WhatsApp number we can reach you on.');
     if($('#q-web').value)return;
-    var heard=v('q-heard'),p={name:v('q-name'),phone:v('q-phone'),event_type:v('q-type'),event_date:v('q-date'),message:['Sent from the website (zemaproduction.com)',heard?'Heard about us: '+heard:'',v('q-email')?'Email: '+v('q-email'):'',v('q-venue')?'Venue / location: '+v('q-venue'):'',v('q-text')].filter(Boolean).join('\n\n')};
-    var wa='https://wa.me/447449727801?text='+encodeURIComponent(['Enquiry for Zema Production','Name: '+p.name,'Phone: '+p.phone,p.event_type&&('Event: '+p.event_type),p.event_date&&('Date: '+p.event_date),v('q-text')].filter(Boolean).join('\n'));
+    var heard=v('q-heard'),p={name:v('q-name'),phone:v('q-phone'),event_type:v('q-type'),event_date:v('q-date'),message:['Sent from the website (zemaproduction.com)',heard?'Heard about us: '+heard:'',v('q-email')?'Email: '+v('q-email'):'',v('q-venue')?'Venue / location: '+v('q-venue'):'',pkg?'Package: '+pkg:'',v('q-text')].filter(Boolean).join('\n\n')};
+    var wa='https://wa.me/447449727801?text='+encodeURIComponent(['Enquiry for Zema Production','Name: '+p.name,'Phone: '+p.phone,p.event_type&&('Event: '+p.event_type),p.event_date&&('Date: '+p.event_date),pkg&&('Package: '+pkg),v('q-text')].filter(Boolean).join('\n'));
     var btn=fm.querySelector('button[type=submit]');btn.disabled=true;msg.textContent='Sending…';
     rpc('enquiry_submit',{p:p}).then(function(r){if(!r.ok)throw 0;
       $('#enqWrap').innerHTML='<div class="sent"><div class="eyebrow">Thank you</div><h2 class="display">Your enquiry is with us</h2><p class="lead">We’ll get back to you about your date as soon as we can. If you’d like a faster reply, send the same details on WhatsApp.</p><a class="pill" href="'+esc(wa)+'" target="_blank" rel="noopener">Send on WhatsApp</a></div>';
