@@ -434,3 +434,6 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 @media(max-width:560px){.gcard:nth-child(3){grid-column:span 1;max-width:none}}
 @media(max-width:900px) and (min-width:561px){.gcard:nth-child(4),.gcard:nth-child(5){grid-column:span 1}}
 @media(max-width:560px){.gidx{grid-template-columns:1fr}.gcard,.gcard:nth-child(n){grid-column:span 1;max-width:none;justify-self:stretch}}
+
+.mark{display:flex;justify-content:center;padding-left:0}.mark img{height:40px;width:auto;display:block}
+@media(max-width:760px){.mark img{height:32px}}
