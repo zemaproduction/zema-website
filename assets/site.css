@@ -453,3 +453,4 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 .split .txt .story-q{font-size:var(--fs-accent)}
 .split .txt.left p:not(.italic){max-width:60ch}
 @media(min-width:961px){.split.story .ph{align-items:flex-start}.split.story .ph img{position:sticky;top:140px}}
+.inl{color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
