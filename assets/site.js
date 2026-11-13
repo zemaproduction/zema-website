@@ -152,7 +152,6 @@ if(fm){var d=$('#q-date');if(d)d.min=new Date().toISOString().slice(0,10);
     }).catch(function(){btn.disabled=false;msg.className='msg bad';msg.innerHTML='We couldn’t send the form just now. Please <a href="'+esc(wa)+'" target="_blank" rel="noopener" style="text-decoration:underline">send your enquiry on WhatsApp</a> instead.'})})}
 
 var y=$('#yr');if(y)y.textContent=new Date().getFullYear();
-})();
 
 /* general review link (/review/): saved to the planner, waiting for approval */
 (function(){var f=document.getElementById('rv');if(!f)return;
@@ -169,3 +168,5 @@ var y=$('#yr');if(y)y.textContent=new Date().getFullYear();
     }).catch(function(err){btn.disabled=false;msg.textContent=(err&&err.message&&err.message.length<120?err.message+' ':'')+'If it doesn’t send, please message us on WhatsApp.'})
   })
 })();
+})();
+
