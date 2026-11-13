@@ -357,7 +357,7 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 .q blockquote,.qfeat blockquote{margin:0;color:var(--mut)}
 .qq{font:300 var(--fs-h3)/1.3 var(--serif)}
 .qfeat .qq{font-size:var(--fs-h2);line-height:1.2}
-.stars{letter-spacing:.3em;font-size:12px;color:var(--mut)}
+.stars{letter-spacing:.3em;font-size:12px;color:#D4AF37}
 .q cite,.qfeat cite{display:flex;flex-direction:column;gap:6px;font:400 var(--fs-label)/1.4 var(--sans);letter-spacing:var(--ls-label);text-transform:uppercase;font-style:normal}
 .q cite span,.qfeat cite span{font:italic 300 16px/1.3 var(--serif);letter-spacing:0;text-transform:none;color:var(--mut)}
 .qfeat{margin:0 0 var(--gap-xl);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:var(--gap-xl);align-items:center}
