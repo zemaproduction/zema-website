@@ -18,7 +18,7 @@
 <link rel="icon" href="../img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=202611130046">
+<link rel="stylesheet" href="../assets/site.css?v=202611130058">
 
 </head>
 <body>
@@ -38,7 +38,8 @@
 <section class="sec flush-top"><div class="wrap narrow"><div id="rvWrap" class="form-card">
 <form id="rv" class="form" novalidate>
 <div class="f full"><label for="rv-name">Name to show with your review *</label><input id="rv-name" maxlength="120" placeholder="e.g. Hana &amp; Yonas" autocomplete="name" required></div>
-<div class="f full"><label for="rv-event">Your celebration</label><input id="rv-event" maxlength="80" placeholder="e.g. Wedding, 2024"></div>
+<div class="f"><label for="rv-event">Your celebration</label><select id="rv-event"><option value="">Choose one</option><option>Wedding</option><option>Church ceremony</option><option>Melse / Hammawiti</option><option>Pre-wedding shoot</option><option>Engagement</option><option>Christening</option><option>Birthday</option><option>Photoshoot</option><option>Other event</option></select></div>
+<div class="f"><label for="rv-year">Year of your celebration *</label><select id="rv-year" required><option value="">Choose a year</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option><option>2017</option><option>2016</option><option>2015</option></select></div>
 <div class="f full"><span class="lbl">Your rating</span><div class="rstars" role="radiogroup" aria-label="Rating"><input type="radio" name="rv-r" id="rv-r5" value="5" checked><label for="rv-r5" aria-label="5 stars">★</label><input type="radio" name="rv-r" id="rv-r4" value="4"><label for="rv-r4" aria-label="4 stars">★</label><input type="radio" name="rv-r" id="rv-r3" value="3"><label for="rv-r3" aria-label="3 stars">★</label><input type="radio" name="rv-r" id="rv-r2" value="2"><label for="rv-r2" aria-label="2 stars">★</label><input type="radio" name="rv-r" id="rv-r1" value="1"><label for="rv-r1" aria-label="1 star">★</label></div></div>
 <div class="f full"><label for="rv-text">Your review *</label><textarea id="rv-text" maxlength="1500" rows="7" required placeholder="What was it like working with us? How did you feel about your photographs and film?"></textarea></div>
 <div class="hp" aria-hidden="true"><label for="rv-web">Website</label><input id="rv-web" tabindex="-1" autocomplete="off"></div>
@@ -59,6 +60,6 @@
 </div>
 </div>
 </div></footer>
-<script src="../assets/site.js?v=202611130046" defer></script>
+<script src="../assets/site.js?v=202611130058" defer></script>
 </body>
 </html>
