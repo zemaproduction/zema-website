@@ -153,3 +153,19 @@ if(fm){var d=$('#q-date');if(d)d.min=new Date().toISOString().slice(0,10);
 
 var y=$('#yr');if(y)y.textContent=new Date().getFullYear();
 })();
+
+/* general review link (/review/): saved to the planner, waiting for approval */
+(function(){var f=document.getElementById('rv');if(!f)return;
+  f.addEventListener('submit',function(e){e.preventDefault();
+    var g=function(id){return (document.getElementById(id).value||'').trim()},msg=document.getElementById('rv-msg');
+    if(g('rv-web'))return;
+    var name=g('rv-name'),text=g('rv-text'),r=f.querySelector('input[name="rv-r"]:checked'),rating=r?+r.value:5;
+    if(!name){msg.textContent='Please add the name to show with your review.';return}
+    if(text.length<10){msg.textContent='Please write a few words about your experience.';return}
+    var btn=f.querySelector('button[type=submit]');btn.disabled=true;msg.textContent='Sending…';
+    rpc('review_submit_open',{p_name:name,p_rating:rating,p_text:text,p_event:g('rv-event')}).then(function(res){
+      if(res.ok){document.getElementById('rvWrap').innerHTML='<div class="sent"><div class="eyebrow">Thank you</div><h2 class="display">Your review is with us</h2><p class="lead">It means a lot that you took the time. Thank you for trusting us with your story.</p><a class="pill" href="../portfolio/">See the portfolio</a></div>';return}
+      return res.json().then(function(j){throw new Error((j&&j.message)||'')})
+    }).catch(function(err){btn.disabled=false;msg.textContent=(err&&err.message&&err.message.length<120?err.message+' ':'')+'If it doesn’t send, please message us on WhatsApp.'})
+  })
+})();

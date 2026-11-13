@@ -455,3 +455,12 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 @media(min-width:961px){.split.story .ph{align-items:flex-start}.split.story .ph img{position:sticky;top:140px}}
 .inl{color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .masonry button{background:var(--panel)}.masonry img{display:block}
+/* review page */
+.wrap.narrow{max-width:var(--narrow)}
+.rstars{display:inline-flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px}
+.rstars input{position:absolute;opacity:0;pointer-events:none}
+.rstars label{font-size:30px;line-height:1;color:var(--line);cursor:pointer;transition:color .3s}
+.rstars input:checked~label,.rstars label:hover,.rstars label:hover~label{color:var(--fg)}
+.rstars input:focus-visible+label{outline:1px solid var(--fg);outline-offset:3px}
+.form .lbl{display:block;font:400 var(--fs-label)/1.4 var(--sans);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.form .note.full{grid-column:1/-1;max-width:none}
